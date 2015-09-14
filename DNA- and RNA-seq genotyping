@@ -28,3 +28,40 @@ rm  ApER7GeRA_CAAAAG.pair.uniq.nonRedu.bam
 samtools mpileup -Q 0 -q 0  -d 1000000 -f  ../Malus_x_domestica.v1.0.combined.fa   ApER7GeRA_CAAAAG.pair.uniq.nonRedu.sorted.bam  > E7-DNA-rep-1.pileup
 reSeqPrintSample.indel.fast.strAssign.DNAseq.1  ../Malus_x_domestica.v1.0.combined.fa   E7-DNA-rep-1.parenth.1col  E7-DNA-rep-1.pileup  E7-DNA-rep-1 1 1 -0.3
 
+RNA-seq
+-----------
+-----------
+syspipeline.2.pl
+
+
+#[linyong@whale dir-raw-seq-fq]$ cat  script-merge-bams
+#
+cat fq-list-RNA-bam-R1-R2 | while read f
+do
+  samtools merge  -f  $f.combined.bam "$f"_R1.uniq.nonRed.sorted.bam "$f"_R2.uniq.nonRed.sorted.bam
+  mv "$f"_R1.uniq.nonRed.sorted.bam "$f"_R2.uniq.nonRed.sorted.bam dir-RNA-fastq/
+done
+
+#[linyong@whale dir-raw-seq-fq]$ cat  script-RNA-genotype
+#
+#[linyong@whale dir-raw-seq-fq]$ cat  fq-list-RNA-bam-HANXX
+n4.o1.e2.5388_4423_21133_C6JBHANXX_ApRtRNA_EE1RtRNA_GGCTAC_R1.uniq.nonRed.sorted.bam    E7-rootstock-second-data-set-rep-1
+n4.o1.e2.5388_4423_21133_C6JBHANXX_ApRtRNA_EE2RtRNA_CTTGTA_R1.uniq.nonRed.sorted.bam    E7-rootstock-second-data-set-rep-2
+n4.o1.e2.5388_4423_21133_C6JBHANXX_ApRtRNA_EE3RtRNA_AGTCAA_R1.uniq.nonRed.sorted.bam    E7-rootstock-second-data-set-rep-3
+
+cat  fq-list-RNA-bam-HANXX  | while read ll
+do
+  bam=`echo "$ll" | awk '{print $1}'`
+  id=`echo "$ll" | awk '{print $2}'`
+  echo $bam "   " $id
+  samtools mpileup -Q 0 -d 1000000 -f   ../Malus_x_domestica.v1.0.combined.fa   $bam > $id.pileup
+  echo -n $bam "        "
+  t=`wc -l $id.pileup  | awk '{print $1}' `
+  echo -n $t "  "
+  awk 'NR % 100000 == 0' $id.pileup | awk 'BEGIN {FS = "\t"; OFS = "\t"; s=0; c=0} {s += $4; c++} END {print s,c,s/c}'
+  reSeqPrintSample.indel.fast.strAssign.RNAseq ../Malus_x_domestica.v1.0.combined.fa   $id.c1.RNAseq.1col  $id.pileup   $id   1 1 -0.2
+  rm   $id.pileup
+
+done
+
+
