@@ -1,0 +1,19 @@
+[linyong@whale dir-raw-seq-fq]$ head temp-1
+chr     pos     base    Emp-DNA E7-DNA  Emp-self-rep2
+chr10   90732   T       C(11)   T(8)    N
+chr10   92105   A       G(19)   A(14)   N
+chr10   98021   G       A(9)    G(18)   A(2)
+chr10   124689  M       C(17)   A(18)   C(10)
+chr10   124690  W       A(18)   T(18)   A(10)
+
+perl ../../grape_graft/genome_filter-lm.pl   temp-1 > temp-2
+perl ../../grape_graft/RNA_filter.pl   temp-2 >  Emp-self-graft-rep-2-Fei-filter
+
+[linyong@whale dir-raw-seq-fq]$ head  Emp-self-graft-rep-2-Fei-filter
+chr     pos     base    Emp-DNA E7-DNA  Emp-self-rep2
+chr10   136575  A       C(20)   A(11)   A(1)
+chr10   873356  C       A(13)   C(23)   A(20)C(3)
+chr10   1304815 A       G(73)   A(57)   A(20)G(172)
+chr10   2639221 T       C(13)   T(14)   C(29)T(2)
+chr10   4413791 G       A(8)    G(11)   A(1)G(1)
+chr10   5194964 K       G(54)   T(8)    T(1)
