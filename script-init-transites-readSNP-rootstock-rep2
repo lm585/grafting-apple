@@ -46,6 +46,8 @@ do
    e=`echo "$kk" | cut -f 3`
    c=`echo "$kk" | cut -f 1`
    echo -n "$c  $m      " >>  $rna.transmit.read.raw.count
+   ## chr start end
+   ## >chr11_8495635_8495835_15
    res1=`grep " $c\_$s\_$e\_[0-9]*      " temp.$rnadiff.sam | cut -f 1 | sort | uniq | wc -l`
    res2=`grep " $c\_$s\_$e\_[0-9]*      " temp.$rna.sam  | cut -f 1 | sort | uniq | wc -l`
    echo "$res1  $res2" >>  $rna.transmit.read.raw.count
@@ -53,10 +55,13 @@ done
 
 paste  /home/linyong/data-linyong/apple-graft/dir-raw-seq-fq/apple-ref-3col  ../dir-bams/E7-DNA-comb.geno.noParenth.1col    > temp-ref-3col-$dnasame-1col
 ### 40% of melon memory; 20 min
+## >chr1
+## whole chromosome sequence in 1 line
+
 reSeqPrintSamp.genome.fa.noindel  temp-ref-3col-$dnasame-1col $dnasame.genome.fa
 bwa index $dnasame.genome.fa
 
-### each read, the mismatches
+### each read, transmitted from scion, the mismatches with rootstock DNA,
 grep ">"  $rna.perf.reads.fa | sort | uniq -u > perf.reads.uniq.u.IDs
 wc -l perf.reads.uniq.u.IDs
 grep ">"  $rna.perf.reads.fa | wc -l
@@ -65,15 +70,22 @@ print "readID" "\t" "chr" "\t" "pos" "\t" "DNA-'$dnasame'" "\t" "RNA-'$rna'" "\t
 cat perf.reads.uniq.u.IDs | while read kk
 do
   grep "$kk"  $rna.perf.reads.fa -A 1 | head -2 > one-read.fa
+  # 101-bp read, -n 3 edit distance
   bwa aln -t 4 -n 3 -o 1 -e 2 -f one-read.sai  $dnasame.genome.fa one-read.fa
   bwa samse -f  one-read.sam   $dnasame.genome.fa   one-read.sai one-read.fa
   samtools view -b -S -o one-read.bam one-read.sam
   samtools mpileup  -Q 0 -d 1000000 -f   $dnasame.genome.fa   one-read.bam > one-read.pileup
+  ## pileup file
+  ## chr5    32247773        C       1       t       ~ 
   awk 'BEGIN {FS = "\t"} $3 ~ /^[ACGTacgt]$/ && $5 ~ /^[ACGTacgt]$/ {
   print "'$kk'" "\t" $1 "\t"   $2  "\t" $3 "\t"  $5
   }' one-read.pileup >> $rna.mobile.read
 done
 ###  40% of melon memory;
+# (apple grafting data) EE1RtRNA.mobile.read.2genotypes 
+# readID  chr     pos     DNA-E7-DNA-comb RNA-EE1RtRNA(E7)    DNA-Emp-DNA-comb
+# >HWI-D00656:103:C6JBCANXX:7:1215:19027:70309    chr10   37030958        T       C       C
+
 reSeqPrintSamp.getGenotype.atPos    temp-ref-3col-$dnadiff-1col  $rna.mobile.read  $rna.mobile.read.2genotypes
 
 rm  $rna.fa $rna.seg.list temp-ref-3col-$dnadiff-1col $dnadiff.seg.fa $dnadiff.seg.*  temp-ref-3col-$dnasame-1col $dnasame.genome.fa $dnasame.genome.fa.*
