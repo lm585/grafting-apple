@@ -1,0 +1,20 @@
+
+# 13804R.1lane.c1.RNAseq.1column        
+paste ./dir-bams-to-Gan-Yuan/temp-ref-3col temp-DNA-1380  temp-DNA-2228     13804R.1lane.c1.RNAseq.1column  > temp-6colums
+perl ./genome_filter-lm.pl  temp-6colums > temp-init-list-1
+perl   RNA_filter.pl  temp-init-list-1 > 13804R_Fei_filter
+
+# 22284R.1lane.c1.RNAseq.1column    
+paste ./dir-bams-to-Gan-Yuan/temp-ref-3col temp-DNA-2228  temp-DNA-1380  22284R.1lane.c1.RNAseq.1column > temp-6colums
+perl ./genome_filter-lm.pl  temp-6colums > temp-init-list-1
+perl   RNA_filter.pl  temp-init-list-1 > 22284R_Fei_filter
+
+# 22284S.1lane.c1.RNAseq.1column   
+paste ./dir-bams-to-Gan-Yuan/temp-ref-3col temp-DNA-2228  temp-DNA-1380  22284S.1lane.c1.RNAseq.1column > temp-6colums
+perl ./genome_filter-lm.pl  temp-6colums > temp-init-list-1
+perl   RNA_filter.pl  temp-init-list-1 > 22284S_Fei_filter
+
+chmod -w 13804S_Fei_filter 13804R_Fei_filter 22284R_Fei_filter 22284S_Fei_filter
+rm  temp-6colums  temp-init-list-1 
+
+
