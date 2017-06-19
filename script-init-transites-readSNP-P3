@@ -1,32 +1,30 @@
-### assume 101-bp read, -n 3 -o 1 -e 2
-rna="EE2RtRNA" # rootstock RNA-seq
-rnaFqFile="../dir-RNA-fastq/EE2RtRNA.combine.fastq"
-rnadiff="EE2ShRNA" #scion RNA-seq
-rnadiffFqFile="../dir-RNA-fastq/5389_4423_21132_C6JBCANXX_ApScRNA_EE2ShRNA_CGATGT_R1.fastq"
-dnasame="E7-DNA-comb" #rootstock:E7  DNA
-dnadiff="Emp-DNA-comb" #scion:empire DNA
-bamfile="../dir-bams/EE2RtRNA-comb.bam"
-initList="E7-rootstock-rep2-Fei-filter"
-# file="../RNA-seq-fq-files/RNAseq/383_4423_3876_N_P3_TTAGGC_R1.fastq.gz"
-# cp $file $rna.raw.fq.gz
-# file="../RNA-seq-fq-files/RNAseq/383_4423_3878_N_P10_TAGCTT_R1.fastq.gz"
-# cp $file $rnadiff.raw.fq.gz
+### assume 100-bp read, -n 3 -o 1 -e 2
+rna="P3"
+rnadiff="P10"
+dnasame="1380"
+dnadiff="2228"
+bamfile="$rna.sorted.bam"
+initList="P3_Fei_filter"
+file="../RNA-seq-fq-files/RNAseq/383_4423_3876_N_P3_TTAGGC_R1.fastq.gz"
+cp $file $rna.raw.fq.gz
+file="../RNA-seq-fq-files/RNAseq/383_4423_3878_N_P10_TAGCTT_R1.fastq.gz"
+cp $file $rnadiff.raw.fq.gz
 
-# gunzip  $rna.raw.fq.gz $rnadiff.raw.fq.gz
+gunzip  $rna.raw.fq.gz $rnadiff.raw.fq.gz
 
 echo "$rna read length"
 samtools view $bamfile   | head -10000 | cut -f 6 | sort | uniq -c | sort -n | tail
 samtools view $bamfile   | awk 'BEGIN {FS = "\t"} {print ">" $1 "\n" $10}' > $rna.fa
-cut -f 1-2 $initList |   awk 'NR > 1 {print $1 "\t" $2-100 "\t" $2+100}' > $rna.seg.list
-paste /home/linyong/data-linyong/apple-graft/dir-raw-seq-fq/apple-ref-3col  ../dir-bams/Emp-DNA-comb.geno.noParenth.1col   > temp-ref-3col-$dnadiff-1col
+cut -f 1-2 $initList | awk 'NR > 1 {print $1 "\t" $2-99 "\t" $2+99}' > $rna.seg.list
+paste ./temp-ref-3col  DNA-$dnadiff.geno.1colum   > temp-ref-3col-$dnadiff-1col
 ### 40% of melon memory; 15 min
 reSeqPrintSamp.segm.fa.heterozyg  temp-ref-3col-$dnadiff-1col  $rna.seg.list  $dnadiff.seg.fa
 bowtie-build $dnadiff.seg.fa  $dnadiff.seg
 ### # reads with at least one reported alignment: 3295 (0.05%)
 bowtie   -v 0   -k 1  $dnadiff.seg    --un temp-um-map-reads    --al  $rna.perf.reads.fa   -f $rna.fa  temp.sam
 rm temp-um-map-reads   temp.sam
-bowtie   -v 0   -k 1000  $dnadiff.seg    --un temp-um-map-reads    --al  temp-map-reads   -q  $rnaFqFile  temp.$rna.sam
-bowtie   -v 0   -k 1000  $dnadiff.seg    --un temp-um-map-reads    --al  temp-map-reads   -q  $rnadiffFqFile   temp.$rnadiff.sam
+bowtie   -v 0   -k 1000  $dnadiff.seg    --un temp-um-map-reads    --al  temp-map-reads   -q   $rna.raw.fq  temp.$rna.sam
+bowtie   -v 0   -k 1000  $dnadiff.seg    --un temp-um-map-reads    --al  temp-map-reads   -q   $rnadiff.raw.fq  temp.$rnadiff.sam
 rm temp-um-map-reads    temp-map-reads 
 rm $rna.transmit.read.raw.count
 echo | awk '{
@@ -35,7 +33,7 @@ print "chr" "\t" "pos" "\t" "source-read-raw-count" "\t"  "ts-read-raw-count"}' 
 cat $rna.seg.list | while read kk
 do
    s=`echo "$kk" | cut -f 2`
-   m=`expr $s + 100`
+   m=`expr $s + 99`
    e=`echo "$kk" | cut -f 3`
    c=`echo "$kk" | cut -f 1`
    echo -n "$c	$m	" >>  $rna.transmit.read.raw.count
@@ -44,7 +42,7 @@ do
    echo "$res1	$res2" >>  $rna.transmit.read.raw.count
 done
 
-paste  /home/linyong/data-linyong/apple-graft/dir-raw-seq-fq/apple-ref-3col  ../dir-bams/E7-DNA-comb.geno.noParenth.1col    > temp-ref-3col-$dnasame-1col
+paste ./temp-ref-3col  DNA-$dnasame.geno.1colum   > temp-ref-3col-$dnasame-1col
 ### 40% of melon memory; 20 min
 reSeqPrintSamp.genome.fa.noindel  temp-ref-3col-$dnasame-1col $dnasame.genome.fa
 bwa index $dnasame.genome.fa
