@@ -1,4 +1,4 @@
-### assume 101-bp read, -n 3 -o 1 -e 2
+#### assume 101-bp read, -n 3 -o 1 -e 2
 rna="EE2RtRNA" # rootstock RNA-seq
 rnaFqFile="../dir-RNA-fastq/EE2RtRNA.combine.fastq"
 rnadiff="EE2ShRNA" #scion RNA-seq
