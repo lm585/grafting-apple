@@ -1,0 +1,8 @@
+Readme for script-init-transites-readSNP-rootstock-rep2
+
+The script detects:
+Scion -> Rootstock (transmitted reads from scion)
+Empire-> E7
+DNAdif - DNAsame
+       - RNAseq of rootstock
+       
